@@ -10,8 +10,6 @@
 
 - [x] Milestone 3: Hardware Implementation
 
-### Team: **Things We Do for Love**
-
 **Team Members**: 
   * [Mahmoud Mohamed Saleh](https://github.com/mmsmhh)
   * [Amr M. Kayid](https://github.com/amrmkayid)
