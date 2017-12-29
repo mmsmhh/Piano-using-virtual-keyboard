@@ -1,9 +1,11 @@
+// The Piano Module that runs on VPGA
 module Piano
 (
-	input wire [7:0] in,
+	input wire [7:0] in, // 8-bits array for the IR Sensors
 	input wire clk,
 	input wire clr,
-	output wire speaker,	speaker2,
+	output wire speaker, speaker2, 
+	// RGB Color for the Piano Tiles with hsync: width & vsync: height tile
 	output wire [3:0] red,
 	output wire [3:0] green,
 	output wire [3:0] blue,
@@ -11,7 +13,7 @@ module Piano
 	output wire vsync
 );
 
-
+// Module responsible for drawing the piano tiles on the screen
 VGA(
 	.in(~in),
 	.clk(clk),
@@ -21,14 +23,15 @@ VGA(
 	.red(red),
 	.green(green),
 	.blue(blue)
-	);
+);
 
 
-	SensorAndSound(
-.clk(clk),
-.speaker(speaker),
-.speaker2(speaker2),
-.inp(in)
+// Module corresponding detecting the IR input and output the corresponding piano sound 
+SensorAndSound(
+	.clk(clk),
+	.speaker(speaker),
+	.speaker2(speaker2),
+	.inp(in)
 );
 
 endmodule
@@ -39,12 +42,12 @@ module VGA(
 	input wire [8:0] in,
 	input wire clk,			//master clock = 50MHz
 	input wire clr,
-	output wire [3:0] red,	//red vga output - 4 bits
-	output wire [3:0] green,//green vga output - 4 bits
-	output wire [3:0] blue,	//blue vga output - 4 bits
+	output wire [3:0] red,		//red vga output - 4 bits
+	output wire [3:0] green,	//green vga output - 4 bits
+	output wire [3:0] blue,		//blue vga output - 4 bits
 	output wire hsync,		//horizontal sync out
-	output wire vsync			//vertical sync out
-	);
+	output wire vsync		//vertical sync out
+);
 
 // VGA display clock interconnect
 wire dclk;
@@ -55,7 +58,7 @@ clockdiv U1(
 	.clk(clk),
 	.clr(clr),
 	.dclk(dclk)
-	);
+);
 
 
 // VGA controller
@@ -68,7 +71,7 @@ vga640x480 U3(
 	.red(red),
 	.green(green),
 	.blue(blue)
-	);
+);
 
 endmodule
 
@@ -78,15 +81,15 @@ endmodule
 
 
 module clockdiv(
-	input wire clk,		//master clock: 50MHz
-	input wire clr,		//asynchronous reset
-	output wire dclk	//pixel clock: 25MHz
-	);
+	input wire clk,			//master clock: 50MHz
+	input wire clr,			//asynchronous reset
+	output wire dclk		//pixel clock: 25MHz
+);
 
 // 17-bit counter variable
 reg [16:0] q;
 
-// Clock divider --
+// Clock divider
 // Each bit in q is a clock signal that is
 // only a fraction of the master clock.
 always @(posedge clk or negedge clr)
@@ -99,7 +102,7 @@ begin
 		q <= q + 1;
 end
 
-// 50Mhz รท 2^1 = 25MHz
+// 50Mhz => 2^1 = 25MHz
 assign dclk = q[0];
 
 endmodule
@@ -107,24 +110,25 @@ endmodule
 
 module vga640x480(
 	input wire [7:0] in,
-	input wire dclk,			//pixel clock: 25MHz
+	input wire dclk,		//pixel clock: 25MHz
 	input wire clr,			//asynchronous reset
 	output wire hsync,		//horizontal sync out
 	output wire vsync,		//vertical sync out
-	output reg [3:0] red,	//red vga output
-	output reg [3:0] green, //green vga output
-	output reg [3:0] blue	//blue vga output
-	);
+	output reg [3:0] red,		//red vga output
+	output reg [3:0] green, 	//green vga output
+	output reg [3:0] blue		//blue vga output
+);
 
 // video structure constants
-parameter hpixels = 800;// horizontal pixels per line
-parameter vlines = 521; // vertical lines per frame
-parameter hpulse = 96; 	// hsync pulse length
-parameter vpulse = 2; 	// vsync pulse length
-parameter hbp = 195; 	// end of horizontal back porch
-parameter hfp = 784; 	// beginning of horizontal front porch
-parameter vbp = 350; 		// end of vertical back porch
-parameter vfp = 521; 	// beginning of vertical front porch
+parameter hpixels = 800;		// horizontal pixels per line
+parameter vlines = 521; 		// vertical lines per frame
+parameter hpulse = 96; 			// hsync pulse length
+parameter vpulse = 2; 			// vsync pulse length
+parameter hbp = 195; 			// end of horizontal back porch
+parameter hfp = 784; 			// beginning of horizontal front porch
+parameter vbp = 350; 			// end of vertical back porch
+parameter vfp = 521; 			// beginning of vertical front porch
+	
 // active horizontal video is therefore: 784 - 144 = 640
 // active vertical video is therefore: 511 - 31 = 480
 
@@ -132,7 +136,7 @@ parameter vfp = 521; 	// beginning of vertical front porch
 reg [9:0] hc;
 reg [9:0] vc;
 
-// Horizontal & vertical counters --
+// Horizontal & vertical counters
 // this is how we keep track of where we are on the screen.
 // ------------------------
 
@@ -895,10 +899,16 @@ end
 
 endmodule
 
-module SensorAndSound(clk, speaker,speaker2,inp);
+module SensorAndSound(
+	clk, 
+	speaker,
+	speaker2,
+	inp
+);
+	
 input clk;
 input [7:0] inp;
-output speaker,speaker2;
+output speaker, speaker2;
 
  reg [25:0] count1;
  reg [25:0] count2;
@@ -928,7 +938,7 @@ output speaker,speaker2;
 
            end
 
-			  if(count2==42565) begin
+	  if(count2==42565) begin
               count2 <= 0;
               clk2 = ~clk2 ;
            end else begin
@@ -936,7 +946,7 @@ output speaker,speaker2;
 
            end
 
-			   if(count3==37921) begin
+	   if(count3==37921) begin
               count3 <= 0;
               clk3 = ~clk3 ;
            end else begin
@@ -944,7 +954,7 @@ output speaker,speaker2;
 
            end
 
-			   if(count4==35793) begin
+	   if(count4==35793) begin
               count4 <= 0;
               clk4 = ~clk4 ;
            end else begin
@@ -952,7 +962,7 @@ output speaker,speaker2;
 
            end
 
-			  if(count5==31888) begin
+	  if(count5==31888) begin
               count5 <= 0;
               clk5 = ~clk5 ;
            end else begin
@@ -960,7 +970,7 @@ output speaker,speaker2;
 
            end
 
-			  if(count6==28409) begin
+	  if(count6==28409) begin
               count6 <= 0;
               clk6 = ~clk6 ;
            end else begin
@@ -968,7 +978,7 @@ output speaker,speaker2;
 
            end
 
-			  if(count7==25310) begin
+	  if(count7==25310) begin
               count7 <= 0;
               clk7 = ~clk7 ;
            end else begin
@@ -976,7 +986,7 @@ output speaker,speaker2;
 
            end
 
-			  if(count8==23889) begin
+	  if(count8==23889) begin
               count8 <= 0;
               clk8 = ~clk8 ;
            end else begin
@@ -985,17 +995,8 @@ output speaker,speaker2;
            end
     end
 
-		assign speaker =(inp[0])? ((inp[1])? ((inp[2])? ((inp[3])? ((inp[4])? ((inp[5])? ((inp[6])? ((inp[7])? 0:clk8):clk7):clk6 ):clk5):clk4):clk3):clk2):clk1 ;
-		assign speaker2 =(inp[0])? ((inp[1])? ((inp[2])? ((inp[3])? ((inp[4])? ((inp[5])? ((inp[6])? ((inp[7])? 0:clk8):clk7):clk6 ):clk5):clk4):clk3):clk2):clk1 ;
-
-		//  assign speaker =(inp[1])? 0:clk2 ;
-	//	assign speaker =(inp[2])? 0:clk3 ;
-	//	assign speaker =(inp[3])? 0:clk4 ;
-	//	assign speaker =(inp[4])? 0:clk5 ;
-	//	assign speaker =(inp[5])? 0:clk6 ;
-	//	assign speaker =(inp[6])? 0:clk7 ;
-	//	assign speaker =(inp[7])? 0:clk8 ;
-
+	assign speaker =(inp[0])? ((inp[1])? ((inp[2])? ((inp[3])? ((inp[4])? ((inp[5])? ((inp[6])? ((inp[7])? 0:clk8):clk7):clk6 ):clk5):clk4):clk3):clk2):clk1 ;
+	assign speaker2 =(inp[0])? ((inp[1])? ((inp[2])? ((inp[3])? ((inp[4])? ((inp[5])? ((inp[6])? ((inp[7])? 0:clk8):clk7):clk6 ):clk5):clk4):clk3):clk2):clk1 ;
 endmodule
 
 
