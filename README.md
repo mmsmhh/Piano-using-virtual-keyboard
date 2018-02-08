@@ -14,5 +14,5 @@
   * [Mahmoud Mohamed Saleh](https://github.com/mmsmhh)
   * [Amr M. Kayid](https://github.com/amrmkayid)
   * [Mohamed Ibrahim M3eeza](https://github.com/m3eeza)
-  * Mohamed Hesham Helal
-  * Mustafa Goudah
+  * [Mohamed Hesham Helal](https://github.com/mohamedhelal1)
+  * [Mustafa Goudah](https://github.com/mustafagoudah)
